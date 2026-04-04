@@ -1,11 +1,18 @@
 from flask import Flask, request, jsonify
 import random
 
+# 1. تعريف التطبيق أولاً (هذا السطر هو الذي يمنع الخطأ NameError)
 app = Flask(__name__)
+
+# 2. مسار الإيقاف/الفحص (الذي حاولت إضافته سابقاً) موضوع الآن في المكان الصحيح
+@app.route('/shutdown', methods=['POST', 'GET'])
+def shutdown():
+    return jsonify({"status": "success", "message": "Shutdown route is working"})
 
 # قائمة الفواكه المعتمدة تماماً كما في Smali
 VALID_FRUITS = ["grape", "lemon", "orange", "apple", "cherry", "watermelon", "strawberry", "mango"]
 
+# 3. مسار التوقع الأساسي
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
