@@ -2,8 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Senpa.io - Professional Ultra 140FPS Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+    <title>Senpa.io - 140 FPS Stable | Remas Ultimate</title>
     <style>
         * {
             margin: 0;
@@ -11,340 +11,210 @@
             box-sizing: border-box;
         }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #05050f;
-            color: white;
-            overflow: hidden;
-            height: 100vh;
+        html, body {
             width: 100vw;
-            position: fixed;
-            touch-action: none;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
-        /* شريط التبويبات العلوي - نظيف وعصري */
-        .tabs-container {
-            display: flex;
-            background: rgba(0, 0, 0, 0.95);
-            backdrop-filter: blur(15px);
-            border-bottom: 2px solid rgba(74, 222, 128, 0.4);
-            height: 45px;
-            align-items: center;
-            padding: 0 15px;
-            gap: 8px;
-            z-index: 1000;
-            position: relative;
-        }
-
-        .tab {
-            padding: 8px 24px;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 6px 6px 0 0;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            color: #888;
-            min-width: 130px;
-            text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .tab.active {
-            background: linear-gradient(135deg, #10b981, #059669);
-            border-color: transparent;
-            color: white;
-            box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
-        }
-
-        .tab:hover:not(.active) {
-            background: rgba(16, 185, 129, 0.15);
-            border-color: #10b981;
-            color: white;
-        }
-
-        .tab-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: #10b981;
-            box-shadow: 0 0 8px #10b981;
-        }
-
-        .tab-dot.idle {
-            background: #3b82f6;
-            box-shadow: 0 0 8px #3b82f6;
-        }
-
-        .games-wrapper {
-            position: relative;
-            height: calc(100vh - 45px);
-            width: 100%;
-            overflow: hidden;
+            height: 100vh;
+            overflow: hidden !important;
+            position: fixed !important;
             background: #000;
+            touch-action: none !important;
+            overscroll-behavior: none !important;
+            -webkit-touch-callout: none !important;
+            -webkit-user-select: none !important;
+            user-select: none !important;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* تقنية التبديل الفوري عبر تسريع الجرافيكس GPU لثبات الفريمات */
-        .game-layer {
+        /* حاوية اللعبة تمتد على كامل الشاشة 100% */
+        .games-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .game-frame {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             border: none;
-            will-change: transform, opacity;
+            will-change: transform;
             transform: translateZ(0);
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
-            transition: opacity 0.15s ease-in-out;
         }
 
-        .game-layer.active {
-            visibility: visible;
-            opacity: 1 !important;
-            z-index: 2;
-        }
-
-        /* الحفاظ على التبويب الخلفي نشط رسومياً بنسبة ضئيلة جداً لتجنب تجميد المتصفح للأداء */
-        .game-layer.inactive {
-            visibility: visible;
-            opacity: 0.002 !important;
-            z-index: 1;
+        /* عداد FPS - لا يعيق اللمس */
+        .fps-display {
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            z-index: 9999;
+            border: 1px solid rgba(74, 222, 128, 0.4);
+            font-family: 'Courier New', monospace;
+            color: #4ade80;
+            display: flex;
+            align-items: center;
+            gap: 8px;
             pointer-events: none;
         }
 
-        /* عداد الفريمات الاحترافي المتطور */
-        .fps-counter {
-            position: fixed;
-            top: 60px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.85);
-            padding: 8px 16px;
-            border-radius: 30px;
-            font-size: 13px;
-            font-weight: bold;
-            color: #10b981;
-            z-index: 9999;
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            backdrop-filter: blur(8px);
-            font-family: 'Courier New', monospace;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            gap: 6px;
+        .fps-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4ade80;
+            box-shadow: 0 0 10px #4ade80;
         }
 
-        .perf-indicator {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: #10b981;
-            box-shadow: 0 0 8px #10b981;
+        .fps-dot.warning {
+            background: #fbbf24;
+            box-shadow: 0 0 10px #fbbf24;
+        }
+
+        .fps-dot.danger {
+            background: #ef4444;
+            box-shadow: 0 0 10px #ef4444;
         }
     </style>
 </head>
 <body>
 
-    <div class="fps-counter" id="fpsCounter">
-        <span class="perf-indicator"></span>
-        <span>FPS: <span id="fpsValue">140</span></span>
-    </div>
-
-    <div class="tabs-container" id="tabsContainer">
-        <div class="tab active" data-tab="0" onclick="switchToTab(0)">
-            <span class="tab-dot"></span>
-            التبويب ①
-        </div>
-        <div class="tab" data-tab="1" onclick="switchToTab(1)">
-            <span class="tab-dot idle"></span>
-            التبويب ②
-        </div>
-    </div>
-
-    <div class="games-wrapper" id="gamesWrapper">
-        <iframe class="game-layer active" id="game0" 
+    <div class="games-container">
+        <iframe class="game-frame" id="mainGame" 
                 src="https://senpa.io" 
-                allow="autoplay;cross-origin-isolated"
-                loading="eager"
-                importance="high">
+                allow="camera;microphone;autoplay;clipboard-read;clipboard-write"
+                loading="eager">
         </iframe>
-        <iframe class="game-layer inactive" id="game1" 
-                src="about:blank" 
-                allow="autoplay;cross-origin-isolated"
-                loading="lazy">
-        </iframe>
+    </div>
+
+    <div class="fps-display">
+        <span class="fps-dot" id="fpsDot"></span>
+        <span id="fpsValue">140</span> FPS
     </div>
 
     <script>
         (function() {
             'use strict';
 
-            const CONFIG = {
-                gameURL: 'https://senpa.io',
-                targetFPS: 140, // سقف الفريمات المطلوب تثبيته
-                switchKey: 'Tab' // زر التبديل السريع من الكيبورد
-            };
+            const TARGET_FPS = 140;
 
-            const STATE = {
-                activeTab: 0,
-                tabs: [
-                    { loaded: true, url: CONFIG.gameURL },
-                    { loaded: false, url: CONFIG.gameURL }
-                ]
-            };
+            // ============ 1. تثبيت إيماءات الشاشة (دعم إضافي للسكربت) ============
+            document.addEventListener('touchmove', function(event) {
+                if (event.scale !== 1) { event.preventDefault(); }
+            }, { passive: false });
 
-            // ============ نظام التبديل والاحتفاظ بالنشاط الخلفي ============
-            window.switchToTab = function(index) {
-                if (STATE.activeTab === index) return;
-
-                const prev = STATE.activeTab;
-                STATE.activeTab = index;
-
-                const prevFrame = document.getElementById(`game${prev}`);
-                const nextFrame = document.getElementById(`game${index}`);
-
-                if (prevFrame) {
-                    prevFrame.classList.remove('active');
-                    prevFrame.classList.add('inactive');
-                }
-
-                if (nextFrame) {
-                    nextFrame.classList.remove('inactive');
-                    nextFrame.classList.add('active');
-                    nextFrame.focus();
-                }
-
-                // تحميل التبويب الثاني فوراً عند أول تبديل وتركه يعمل للأبد
-                if (!STATE.tabs[index].loaded) {
-                    nextFrame.src = STATE.tabs[index].url;
-                    STATE.tabs[index].loaded = true;
-                    nextFrame.onload = () => injectPerformanceEngine(nextFrame);
-                }
-
-                document.querySelectorAll('.tab').forEach((tab, i) => tab.classList.toggle('active', i === index));
-            };
-
-            // ============ نظام الحقن المتطور لثبات ورفع الفريمات إلى 140 FPS ============
-            function injectPerformanceEngine(frame) {
-                try {
-                    const doc = frame.contentDocument || frame.contentWindow.document;
-                    if (!doc) return;
-
-                    const script = doc.createElement('script');
-                    script.textContent = `
-                        (function() {
-                            // 1. خداع كامل لنظام الرؤية لمنع الخمول (Anti-Background Sleep)
-                            Object.defineProperty(document, 'hidden', { get: () => false });
-                            Object.defineProperty(document, 'visibilityState', { get: () => 'visible' });
-                            Object.defineProperty(document, 'webkitHidden', { get: () => false });
-                            
-                            window.hasFocus = () => true;
-                            document.hasFocus = () => true;
-                            
-                            // تعطيل إلغاء التركيز عند مغادرة التبويب
-                            window.addEventListener('blur', (e) => { e.stopImmediatePropagation(); }, true);
-
-                            // 2. محرك جدولة الفريمات الذكي بقوة 140 هرتز ثابتة (140FPS Boost Core)
-                            const targetFPS = ${CONFIG.targetFPS};
-                            const frameInterval = 1000 / targetFPS; // حوالي 7.14 مللي ثانية لكل فريم
-                            
-                            let rafCallbacks = [];
-                            
-                            // إعادة توجيه الـ requestAnimationFrame ليتم تكراره بقوة وسرعة هرتز مخصصة
-                            window.requestAnimationFrame = function(callback) {
-                                rafCallbacks.push(callback);
-                                return rafCallbacks.length;
-                            };
-
-                            window.cancelAnimationFrame = function(id) {
-                                rafCallbacks = [];
-                            };
-
-                            // الحلقة الذكية فائقة السرعة والمستقرة في الخلفية والأمامية
-                            let lastFrameTime = performance.now();
-                            function runHighHzLoop() {
-                                const now = performance.now();
-                                if (now - lastFrameTime >= frameInterval) {
-                                    const processingQueue = rafCallbacks;
-                                    rafCallbacks = [];
-                                    
-                                    for (let i = 0; i < processingQueue.length; i++) {
-                                        try { processingQueue[i](now); } catch (err) {}
-                                    }
-                                    lastFrameTime = now;
-                                }
-                                // استخدام مؤقت فوري مدمج لضمان عدم توقف الحلقة في الخلفية
-                                setTimeout(runHighHzLoop, 1);
-                            }
-                            runHighHzLoop();
-
-                            // تنظيف دائم للإعلانات والعناصر الثقيلة لزيادة ثبات المعالجة
-                            const style = document.createElement('style');
-                            style.textContent = '#bottomAd,#senpa-io_300x250_3,#endGame,#room-stats-hud,#socialsidebar,#preroll,#gameadsbanner-container,#right-panel,#left-panel,.ads-block-1,.banner,.advertisement{display:none!important;opacity:0!important;pointer-events:none!important}';
-                            document.head.appendChild(style);
-                        })();
-                    `;
-                    doc.head.appendChild(script);
-                } catch (e) {
-                    console.error('Performance Injection Bypass Error:', e);
-                }
-            }
-
-            // الاستماع لزر الـ Tab للتبديل السريع
-            document.addEventListener('keydown', (e) => {
-                if (e.code === CONFIG.switchKey) {
-                    e.preventDefault();
-                    switchToTab(STATE.activeTab === 0 ? 1 : 0);
-                }
+            document.addEventListener('gesturestart', function(e) {
+                e.preventDefault();
             });
 
-            // ============ مراقب أداء العداد للتبويب الفعال ============
-            function startFPSCounter() {
-                let frameCount = 0;
-                let lastTime = performance.now();
-                const fpsEl = document.getElementById('fpsValue');
+            let lastTouchEnd = 0;
+            document.addEventListener('touchend', function(event) {
+                let now = (new Date()).getTime();
+                if (now - lastTouchEnd <= 300) { event.preventDefault(); }
+                lastTouchEnd = now;
+            }, false);
 
-                function update() {
-                    frameCount++;
-                    const now = performance.now();
-                    if (now - lastTime >= 1000) {
-                        // محاكاة وعرض القراءة المحسنة والمستقرة بناءً على محرك الحقن المتقدم
-                        const calculatedFPS = Math.min(CONFIG.targetFPS, Math.round((frameCount * 1000) / (now - lastTime)));
-                        if (fpsEl) fpsEl.textContent = calculatedFPS < 60 ? CONFIG.targetFPS : calculatedFPS;
-                        frameCount = 0;
-                        lastTime = now;
+            // ============ 2. نظام منع التجميد المطور (Anti-Freeze) ============
+            function initAntiFreeze() {
+                // خداع المتصفح لإبقاء الصفحة مرئية ونشطة
+                const overrideVisibility = () => {
+                    try {
+                        Object.defineProperty(document, 'hidden', { get: () => false, configurable: true });
+                        Object.defineProperty(document, 'visibilityState', { get: () => 'visible', configurable: true });
+                        Object.defineProperty(document, 'webkitHidden', { get: () => false, configurable: true });
+                        Object.defineProperty(document, 'webkitVisibilityState', { get: () => 'visible', configurable: true });
+                    } catch (e) {}
+                };
+                overrideVisibility();
+                setInterval(overrideVisibility, 500);
+
+                // حظر أحداث التجميد
+                const blockFreezeEvents = (e) => {
+                    e.stopImmediatePropagation();
+                    e.stopPropagation();
+                };
+                ['visibilitychange', 'pagehide', 'freeze', 'blur'].forEach(evt => {
+                    window.addEventListener(evt, blockFreezeEvents, true);
+                    document.addEventListener(evt, blockFreezeEvents, true);
+                });
+
+                // Web Worker للنبض المستمر ومنع خمول المتصفح
+                const workerBlob = new Blob([`
+                    let running = true;
+                    self.onmessage = (e) => { if (e.data === 'stop') running = false; };
+                    function pulse() {
+                        if (!running) return;
+                        self.postMessage('beat');
+                        setTimeout(pulse, 50);
                     }
-                    requestAnimationFrame(update);
-                }
-                requestAnimationFrame(update);
+                    pulse();
+                `], { type: 'application/javascript' });
+                
+                const worker = new Worker(URL.createObjectURL(workerBlob));
+                worker.onmessage = () => {
+                    // نبض خفيف للحفاظ على استقرار المعالج
+                };
+
+                // إرسال رسائل مستمرة للـ iframe لمنعه من الدخول في وضع السكون
+                setInterval(() => {
+                    const frame = document.getElementById('mainGame');
+                    if (frame && frame.contentWindow) {
+                        try {
+                            frame.contentWindow.postMessage({ type: 'keepAlive' }, '*');
+                        } catch (e) {}
+                    }
+                }, 2000);
             }
 
-            // تهيئة وتثبيت البيئة عند التشغيل
-            function init() {
-                startFPSCounter();
-                
-                // قفل أبعاد وتمرير الصفحة بالكامل لحماية الفريمات من الاهتزاز
-                const lockStyle = document.createElement('style');
-                lockStyle.textContent = `html, body { overscroll-behavior: none !important; overflow: hidden !important; position: fixed !important; width: 100% !important; height: 100% !important; }`;
-                document.head.appendChild(lockStyle);
+            // ============ 3. نظام حساب الفريمات ============
+            function initFPS() {
+                let frameCount = 0;
+                let lastTime = performance.now();
+                let fps = TARGET_FPS;
+                const fpsValue = document.getElementById('fpsValue');
+                const fpsDot = document.getElementById('fpsDot');
 
-                // تحميل تبويب اللعبة الأساسي وحقنه فوراً
-                const frame0 = document.getElementById('game0');
-                if (frame0) frame0.onload = () => injectPerformanceEngine(frame0);
+                function loop(currentTime) {
+                    frameCount++;
+                    
+                    if (currentTime - lastTime >= 1000) {
+                        fps = Math.round(frameCount / ((currentTime - lastTime) / 1000));
+                        frameCount = 0;
+                        lastTime = currentTime;
 
-                // تحميل مسبق فوري للتبويب الثاني بالخلفية لتبدأ محاكاة الـ 140 FPS مباشرة
-                const frame1 = document.getElementById('game1');
-                if (frame1 && !STATE.tabs[1].loaded) {
-                    frame1.src = STATE.tabs[1].url;
-                    STATE.tabs[1].loaded = true;
-                    frame1.onload = () => injectPerformanceEngine(frame1);
+                        if (fpsValue) fpsValue.textContent = fps;
+                        if (fpsDot) {
+                            fpsDot.className = 'fps-dot ' + (
+                                fps >= 130 ? '' :
+                                fps >= 90 ? 'warning' : 'danger'
+                            );
+                        }
+                    }
+
+                    requestAnimationFrame(loop);
                 }
+
+                requestAnimationFrame(loop);
+            }
+
+            // ============ التهيئة الرئيسية ============
+            function init() {
+                console.log('🚀 Single-Frame Mode Activated');
+                initAntiFreeze();
+                initFPS();
             }
 
             if (document.readyState === 'loading') {
