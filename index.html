@@ -83,12 +83,13 @@
             box-shadow: 0 0 10px #ef4444;
         }
 
-        /* حاوية الألعاب */
+        /* حاوية الألعاب المحسنة بكرت الشاشة */
         .games-wrapper {
             position: relative;
             height: calc(100vh - 45px);
             width: 100%;
             overflow: hidden;
+            background: #000;
         }
 
         .game-frame {
@@ -98,23 +99,23 @@
             width: 100%;
             height: 100%;
             border: none;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
             will-change: transform, opacity;
-            transform: translateZ(0);
+            transform: translate3d(0, 0, 0); /* إجبار كرت الشاشة على تسريع الرندر ثنائي الأبعاد */
             backface-visibility: hidden;
+            transition: opacity 0.15s linear; /* تبديل فوري لعدم ضياع الإطارات */
         }
 
+        /* تحسين ذكي: التبويب النشط يظهر بالكامل */
         .game-frame.active {
-            opacity: 1;
-            pointer-events: all;
+            opacity: 1 !important;
+            pointer-events: all !important;
             z-index: 10;
         }
 
+        /* التبويب الخلفي يظل شفافاً جداً بدلاً من الاختفاء تماماً لإجبار المتصفح على معالجته واستقراره على 60 فريم */
         .game-frame.background {
-            opacity: 0;
-            pointer-events: none;
+            opacity: 0.005 !important;
+            pointer-events: none !important;
             z-index: 1;
         }
 
@@ -289,53 +290,6 @@
             height: 18px;
             fill: white;
         }
-
-        .respawn-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10001;
-            backdrop-filter: blur(5px);
-        }
-
-        .respawn-modal {
-            background: linear-gradient(135deg, #1e1b4b, #312e81);
-            padding: 40px;
-            border-radius: 20px;
-            text-align: center;
-            border: 2px solid rgba(102, 126, 234, 0.5);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
-            animation: scaleIn 0.3s ease;
-        }
-
-        @keyframes scaleIn {
-            from { transform: scale(0.5); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        .respawn-btn {
-            margin-top: 20px;
-            padding: 15px 40px;
-            font-size: 18px;
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            color: white;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: 0.3s;
-            font-weight: bold;
-        }
-
-        .respawn-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.5);
-        }
     </style>
 </head>
 <body>
@@ -353,7 +307,7 @@
         </div>
     </div>
 
-    <!-- حاوية الألعاب -->
+    <!-- حاوية الألعاب الاستقراية القصوى -->
     <div class="games-wrapper" id="gamesWrapper">
         <iframe class="game-frame active" id="gameFrame0" src="about:blank" allow="camera;microphone;autoplay"></iframe>
         <iframe class="game-frame background" id="gameFrame1" src="about:blank" allow="camera;microphone;autoplay"></iframe>
@@ -361,7 +315,7 @@
 
     <!-- لوحة التحكم -->
     <div class="control-panel" id="controlPanel">
-        <div class="panel-title">⚡ ريماس التيم - الإعدادات</div>
+        <div class="panel-title">⚡ ريماس التيم - الإعدادات المتقدمة</div>
         
         <div class="setting-row">
             <span>إظهار زر الانستغرام</span>
@@ -393,7 +347,7 @@
 
     <!-- مؤشر المفتاح -->
     <div class="key-bind-indicator">
-        اضغط <strong id="currentKey">Tab</strong> للتبديل بين التبويبات
+        اضغط <strong id="currentKey">Tab</strong> للتبديل الفوري بين التبويبات
     </div>
 
     <script>
@@ -402,8 +356,7 @@
             gameURL: 'https://senpa.io',
             instagramLink: 'https://www.instagram.com/6i99n?igsh=MW1wMTNpamJpMWNxeg==',
             maxTabs: 2,
-            defaultKey: 'Tab',
-            respawnKey: 'Escape'
+            defaultKey: 'Tab'
         };
 
         // ============ الحالة العامة ============
@@ -415,209 +368,167 @@
             hideId: JSON.parse(localStorage.getItem('remas_hide_id') || 'true'),
             screenLocked: JSON.parse(localStorage.getItem('remas_screen_lock') || 'true'),
             tabs: [
-                { id: 'tab_' + Date.now() + '_0', frame: null, loaded: false },
-                { id: 'tab_' + Date.now() + '_1', frame: null, loaded: false }
+                { id: 'tab_0', loaded: false },
+                { id: 'tab_1', loaded: false }
             ],
             fps: 60,
-            lastFrameTime: performance.now(),
-            frameCount: 0,
-            fpsUpdateInterval: null
+            lastFrameTime: performance.now()
         };
 
-        // ============ مانع تجميد الفريمات (Anti-Freeze) ============
-        function preventFrameFreeze() {
-            // خداع المتصفح بأن الصفحة مرئية دائماً
-            Object.defineProperty(document, 'hidden', { 
-                get: function() { return false; },
-                configurable: true
-            });
-            
-            Object.defineProperty(document, 'visibilityState', { 
-                get: function() { return 'visible'; },
-                configurable: true
-            });
+        // ============ 1. محرك نبضات الخلفية المتطور (Ultimate Booster) ============
+        function initAntiThrottlingEngine() {
+            // خداع كامل لخصائص الرؤية داخل الصفحة الرئيسية لمنع المتصفح من تقليل الجهد
+            Object.defineProperty(document, 'hidden', { get: () => false, configurable: true });
+            Object.defineProperty(document, 'visibilityState', { get: () => 'visible', configurable: true });
+            Object.defineProperty(document, 'webkitHidden', { get: () => false, configurable: true });
 
-            // منع تجميد المؤقتات
-            const originalSetInterval = window.setInterval;
-            window.setInterval = function(callback, delay, ...args) {
-                return originalSetInterval(callback, Math.max(delay, 0), ...args);
-            };
-
-            // منع أحداث إخفاء الصفحة
-            ['visibilitychange', 'pagehide', 'blur', 'freeze'].forEach(event => {
-                window.addEventListener(event, (e) => {
-                    e.stopImmediatePropagation();
-                    e.stopPropagation();
-                }, true);
-                
-                document.addEventListener(event, (e) => {
-                    e.stopImmediatePropagation();
-                    e.stopPropagation();
-                }, true);
+            // حظر أحداث السبات والخروج القسري
+            ['visibilitychange', 'blur', 'focusout', 'pagehide'].forEach(evt => {
+                window.addEventListener(evt, (e) => { e.stopImmediatePropagation(); e.stopPropagation(); }, true);
+                document.addEventListener(evt, (e) => { e.stopImmediatePropagation(); e.stopPropagation(); }, true);
             });
 
-            // طلب إطار رسومي باستمرار للحفاظ على النشاط
-            function keepAlive() {
-                requestAnimationFrame(keepAlive);
+            // بناء خادم نبضات منفصل (Web Worker) يرسل إشارات مكثفة كل 2 ملي ثانية لمنع نوم التبويبات
+            try {
+                const workerCode = `
+                    setInterval(() => {
+                        self.postMessage('pulse');
+                    }, 2);
+                `;
+                const blob = new Blob([workerCode], { type: 'application/javascript' });
+                const worker = new Worker(URL.createObjectURL(blob));
+                worker.onmessage = function() {
+                    // استدعاء رندر خفيف يحافظ على نشاط المتصفح بأقصى طاقة
+                    window.dispatchEvent(new CustomEvent('remas-keepalive'));
+                };
+            } catch (e) {
+                console.log("Web Worker standby fallback active.");
             }
-            requestAnimationFrame(keepAlive);
 
-            console.log('✅ نظام منع تجميد الفريمات نشط');
-        }
-
-        // ============ نظام FPS ============
-        function initFPSCounter() {
-            state.fpsUpdateInterval = setInterval(() => {
-                const now = performance.now();
-                const delta = now - state.lastFrameTime;
-                state.lastFrameTime = now;
-                
-                if (delta > 0) {
-                    state.fps = Math.round(1000 / delta);
-                    const fpsElement = document.getElementById('fpsCounter');
-                    if (fpsElement) {
-                        fpsElement.textContent = `FPS: ${state.fps}`;
-                        
-                        // تغيير اللون حسب الأداء
-                        if (state.fps >= 55) {
-                            fpsElement.style.color = '#4ade80';
-                            fpsElement.style.borderColor = 'rgba(74, 222, 128, 0.3)';
-                        } else if (state.fps >= 30) {
-                            fpsElement.style.color = '#fbbf24';
-                            fpsElement.style.borderColor = 'rgba(251, 191, 36, 0.3)';
-                        } else {
-                            fpsElement.style.color = '#ef4444';
-                            fpsElement.style.borderColor = 'rgba(239, 68, 68, 0.3)';
-                        }
+            // نظام تفعيل طاقة الرسوميات القصوى للهاردوير
+            if (window.WebGLRenderingContext) {
+                const getCtx = HTMLCanvasElement.prototype.getContext;
+                HTMLCanvasElement.prototype.getContext = function(type, attribs) {
+                    if (type === 'webgl' || type === 'webgl2') {
+                        attribs = attribs || {};
+                        attribs.powerPreference = 'high-performance'; // طلب الأداء الأقصى لكرت الشاشة
+                        attribs.desynchronized = true; // إلغاء المزامنة العمودية لتقليل الـ Lag
                     }
-                }
-            }, 1000);
+                    return getCtx.call(this, type, attribs);
+                };
+            }
         }
 
-        // ============ نظام تثبيت الشاشة ============
+        // ============ 2. قفل الوسائط الصوتي لمنع السبات (Audio Wake Lock) ============
+        let audioWakeContext = null;
+        function activateAudioWakeLock() {
+            if (audioWakeContext) return;
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                audioWakeContext = new AudioCtx();
+                
+                // إنشاء عازل صوتي صامت مستمر يجعل المتصفح يعتبر التبويب بأكمله نشطاً صوتياً 
+                const buffer = audioWakeContext.createBuffer(1, 1, 22050);
+                const source = audioWakeContext.createBufferSource();
+                source.buffer = buffer;
+                source.loop = true;
+                source.connect(audioWakeContext.destination);
+                source.start();
+                console.log('🔊 تم تشغيل الـ Audio Wake Lock لمنع سقوط الإطارات بالخلفية');
+            } catch (e) {
+                console.error("Audio Context boost failed:", e);
+            }
+        }
+        // تفعيل القفل الصوتي فور أول تفاعل للمستخدم (شرط أساسي لسياسة المتصفح)
+        window.addEventListener('click', activateAudioWakeLock, { once: true });
+        window.addEventListener('keydown', activateAudioWakeLock, { once: true });
+
+        // ============ نظام حساب الـ FPS دقيق ومباشر ============
+        function initFPSCounter() {
+            let frames = 0;
+            let lastLog = performance.now();
+            
+            function fpsLoop() {
+                frames++;
+                const now = performance.now();
+                if (now >= lastLog + 1000) {
+                    state.fps = Math.round((frames * 1000) / (now - lastLog));
+                    const el = document.getElementById('fpsCounter');
+                    if (el) {
+                        el.textContent = `FPS: ${state.fps}`;
+                        el.style.color = state.fps >= 55 ? '#4ade80' : (state.fps >= 35 ? '#fbbf24' : '#ef4444');
+                    }
+                    frames = 0;
+                    lastLog = now;
+                }
+                requestAnimationFrame(fpsLoop);
+            }
+            requestAnimationFrame(fpsLoop);
+        }
+
+        // ============ نظام قفل الشاشة المطور ============
         function lockScreen() {
             if (!state.screenLocked) return;
-
-            // منع السحب والتكبير
-            document.addEventListener('touchmove', (e) => {
-                if (e.scale !== 1) {
-                    e.preventDefault();
-                }
-            }, { passive: false });
-
-            document.addEventListener('gesturestart', (e) => {
-                e.preventDefault();
-            });
-
-            // منع النقر المزدوج للتكبير
-            let lastTouchEnd = 0;
+            document.addEventListener('touchmove', (e) => { if (e.scale !== 1) e.preventDefault(); }, { passive: false });
+            document.addEventListener('gesturestart', (e) => e.preventDefault());
+            let lastTouch = 0;
             document.addEventListener('touchend', (e) => {
                 const now = Date.now();
-                if (now - lastTouchEnd <= 300) {
-                    e.preventDefault();
-                }
-                lastTouchEnd = now;
+                if (now - lastTouch <= 300) e.preventDefault();
+                lastTouch = now;
             }, false);
 
-            // تطبيق أنماط CSS لمنع التمرير غير المرغوب
-            const style = document.createElement('style');
-            style.id = 'screenLockStyles';
-            style.textContent = `
-                html, body {
-                    touch-action: none !important;
-                    overscroll-behavior: none !important;
-                    overflow: hidden !important;
-                    -webkit-touch-callout: none !important;
-                    -webkit-user-select: none !important;
-                    user-select: none !important;
-                    position: fixed !important;
-                    width: 100% !important;
-                    height: 100% !important;
-                }
-            `;
-            document.head.appendChild(style);
-
-            console.log('🔒 تم تثبيت الشاشة');
+            if (!document.getElementById('screenStyles')) {
+                const style = document.createElement('style');
+                style.id = 'screenStyles';
+                style.textContent = `html,body{touch-action:none!important;overscroll-behavior:none!important;overflow:hidden!important;position:fixed!important;width:100%!important;height:100%!important;}`;
+                document.head.appendChild(style);
+            }
         }
 
         function toggleScreenLock() {
             state.screenLocked = !state.screenLocked;
             localStorage.setItem('remas_screen_lock', JSON.stringify(state.screenLocked));
-            
-            const toggle = document.getElementById('lockScreenToggle');
-            if (toggle) {
-                toggle.classList.toggle('active', state.screenLocked);
-            }
-            
-            if (state.screenLocked) {
-                lockScreen();
-            } else {
-                const style = document.getElementById('screenLockStyles');
-                if (style) style.remove();
-            }
-            
-            showToast(state.screenLocked ? 'تم تثبيت الشاشة' : 'تم إلغاء تثبيت الشاشة');
+            document.getElementById('lockScreenToggle').classList.toggle('active', state.screenLocked);
+            if (state.screenLocked) lockScreen(); else { const st = document.getElementById('screenStyles'); if(st) st.remove(); }
+            showToast(state.screenLocked ? 'تم تفعيل تثبيت الشاشة' : 'تم إلغاء تثبيت الشاشة');
         }
 
-        // ============ نظام تبديل التبويبات ============
+        // ============ محرك التبديل الفوري الصامت (Instant Switcher) ============
         function switchTab(index) {
             if (state.activeTab === index) return;
-            
-            const previousTab = state.activeTab;
             state.activeTab = index;
             
-            // تحديث الإطارات
             const frames = document.querySelectorAll('.game-frame');
             const tabs = document.querySelectorAll('.tab');
             
+            // تبديل الفئات بدقة متناهية مع الحفاظ على التبويب الآخر يعمل بنسبة شفافية ضئيلة جداً لكرت الشاشة
             frames.forEach((frame, i) => {
                 if (i === index) {
-                    frame.classList.add('active');
                     frame.classList.remove('background');
-                    frame.style.opacity = '1';
-                    frame.style.pointerEvents = 'all';
-                    frame.style.zIndex = '10';
+                    frame.classList.add('active');
+                    frame.focus();
                 } else {
                     frame.classList.remove('active');
                     frame.classList.add('background');
-                    frame.style.opacity = '0';
-                    frame.style.pointerEvents = 'none';
-                    frame.style.zIndex = '1';
                 }
             });
             
-            // تحديث التبويبات المرئية
             tabs.forEach((tab, i) => {
-                const indicator = tab.querySelector('.tab-indicator');
+                const ind = tab.querySelector('.tab-indicator');
                 if (i === index) {
                     tab.classList.add('active');
-                    if (indicator) {
-                        indicator.classList.remove('inactive');
-                    }
+                    if (ind) ind.classList.remove('inactive');
                 } else {
                     tab.classList.remove('active');
-                    if (indicator) {
-                        indicator.classList.add('inactive');
-                    }
+                    if (ind) ind.classList.add('inactive');
                 }
             });
             
-            // تحميل اللعبة إذا لم تكن محملة
             if (!state.tabs[index].loaded) {
                 loadGame(index);
             }
-            
-            // إبقاء التبويب السابق يعمل في الخلفية
-            if (previousTab !== index && state.tabs[previousTab].loaded) {
-                const previousFrame = document.getElementById(`gameFrame${previousTab}`);
-                if (previousFrame) {
-                    // إرسال رسالة للإبقاء على التشغيل
-                    previousFrame.contentWindow?.postMessage({ type: 'keepAlive' }, '*');
-                }
-            }
-            
-            showToast(`تم التبديل إلى اللعبة ${index + 1}`);
-            console.log(`🔄 تم التبديل إلى التبويب ${index + 1}`);
+            showToast(`تم التبديل إلى التبويب ${index + 1}`);
         }
 
         function loadGame(index) {
@@ -625,307 +536,84 @@
             if (frame && !state.tabs[index].loaded) {
                 frame.src = CONFIG.gameURL;
                 state.tabs[index].loaded = true;
-                state.tabs[index].frame = frame;
-                
-                frame.onload = () => {
-                    console.log(`✅ تم تحميل اللعبة ${index + 1}`);
-                    injectGameScripts(frame);
-                };
             }
         }
 
-        function injectGameScripts(frame) {
-            try {
-                const frameDoc = frame.contentDocument || frame.contentWindow.document;
-                
-                // حقن سكريبت تحسين الأداء داخل اللعبة
-                const script = frameDoc.createElement('script');
-                script.textContent = `
-                    // منع تجميد الإطار
-                    Object.defineProperty(document, 'hidden', { 
-                        get: function() { return false; },
-                        configurable: true 
-                    });
-                    
-                    Object.defineProperty(document, 'visibilityState', { 
-                        get: function() { return 'visible'; },
-                        configurable: true 
-                    });
-                    
-                    // إخفاء الإعلانات
-                    const style = document.createElement('style');
-                    style.textContent = \`
-                        #bottomAd, #senpa-io_300x250_3, #endGame, 
-                        #room-stats-hud, #socialsidebar, #preroll,
-                        #gameadsbanner-container, #right-panel, #left-panel,
-                        .ads-block-1, .banner, .advertisement,
-                        .team-players-list, .youtube-box {
-                            display: none !important;
-                            opacity: 0 !important;
-                            pointer-events: none !important;
-                        }
-                    \`;
-                    document.head.appendChild(style);
-                    
-                    // نظام التجاوب مع التبديل
-                    window.addEventListener('message', (event) => {
-                        if (event.data.type === 'keepAlive') {
-                            // الحفاظ على النشاط
-                            const noop = () => {};
-                            requestAnimationFrame(noop);
-                        }
-                    });
-                    
-                    // تخطي شاشة الموت تلقائياً
-                    setInterval(() => {
-                        const modal = document.querySelector('.modal.scale-modal');
-                        if (modal && (modal.style.opacity === '1' || modal.classList.contains('active'))) {
-                            const escEvent = new KeyboardEvent('keydown', {
-                                bubbles: true,
-                                cancelable: true,
-                                keyCode: 27,
-                                key: 'Escape',
-                                code: 'Escape'
-                            });
-                            document.dispatchEvent(escEvent);
-                        }
-                    }, 200);
-                    
-                    console.log('🎮 تم تحسين أداء اللعبة');
-                `;
-                frameDoc.head.appendChild(script);
-                
-            } catch (e) {
-                console.warn('⚠️ لا يمكن حقن السكريبت في الإطار (سياسة CORS):', e.message);
-            }
-        }
-
-        // ============ اختصارات لوحة المفاتيح ============
+        // ============ إدارة المدخلات واختصارات الكيبورد ============
         function handleKeyPress(e) {
-            // حالة إعادة تعيين المفتاح
             if (state.isRebinding) {
                 e.preventDefault();
                 e.stopPropagation();
-                setSwitchKey(e.code);
+                state.switchKey = e.code;
+                localStorage.setItem('remas_switch_key', e.code);
+                document.getElementById('currentKey').textContent = e.code;
                 state.isRebinding = false;
                 updateKeyBindButton();
+                showToast(`تم التعيين: ${e.code}`);
                 return;
             }
             
-            // تبديل التبويبات
             if (e.code === state.switchKey && !e.ctrlKey && !e.altKey && !e.metaKey) {
                 e.preventDefault();
-                const nextTab = (state.activeTab + 1) % CONFIG.maxTabs;
-                switchTab(nextTab);
-                return;
+                switchTab((state.activeTab + 1) % CONFIG.maxTabs);
             }
-            
-            // اختصارات رقمية للتبديل المباشر
-            if (e.ctrlKey && e.key >= '1' && e.key <= '2') {
-                e.preventDefault();
-                const tabIndex = parseInt(e.key) - 1;
-                switchTab(tabIndex);
-            }
-        }
-
-        function setSwitchKey(keyCode) {
-            state.switchKey = keyCode;
-            localStorage.setItem('remas_switch_key', keyCode);
-            
-            const currentKeyElement = document.getElementById('currentKey');
-            if (currentKeyElement) {
-                currentKeyElement.textContent = keyCode;
-            }
-            
-            showToast(`تم تعيين مفتاح التبديل: ${keyCode}`);
         }
 
         function rebindKey() {
             state.isRebinding = true;
-            const btn = document.getElementById('keyBindBtn');
-            if (btn) {
-                btn.textContent = 'اضغط أي مفتاح...';
-                btn.style.animation = 'pulse 1s infinite';
-            }
-            showToast('اضغط على المفتاح الجديد للتبديل...');
+            document.getElementById('keyBindBtn').textContent = 'اضغط أي مفتاح...';
+            showToast('في انتظار ضغط المفتاح الجديد...');
         }
 
         function updateKeyBindButton() {
-            const btn = document.getElementById('keyBindBtn');
-            if (btn) {
-                btn.textContent = state.switchKey;
-                btn.style.animation = '';
-            }
+            document.getElementById('keyBindBtn').textContent = state.switchKey;
         }
 
-        // ============ واجهة المستخدم ============
+        // ============ واجهة المستخدم والتحسينات ============
         function toggleInstagram() {
             state.showInstagram = !state.showInstagram;
             localStorage.setItem('remas_instagram', JSON.stringify(state.showInstagram));
-            
-            const toggle = document.getElementById('instagramToggle');
-            if (toggle) {
-                toggle.classList.toggle('active', state.showInstagram);
-            }
-            
-            showToast(state.showInstagram ? 'تم إظهار زر Instagram' : 'تم إخفاء زر Instagram');
+            document.getElementById('instagramToggle').classList.toggle('active', state.showInstagram);
+            showToast(state.showInstagram ? 'تم تفعيل زر انستغرام' : 'تم إخفاء زر انستغرام');
         }
 
         function toggleHideId() {
             state.hideId = !state.hideId;
             localStorage.setItem('remas_hide_id', JSON.stringify(state.hideId));
-            
-            const toggle = document.getElementById('hideIdToggle');
-            if (toggle) {
-                toggle.classList.toggle('active', state.hideId);
-            }
-            
-            // تطبيق الإخفاء على الإطارات
-            const frames = document.querySelectorAll('.game-frame');
-            frames.forEach(frame => {
-                try {
-                    const doc = frame.contentDocument || frame.contentWindow.document;
-                    if (state.hideId) {
-                        doc.body.classList.add('hide-my-id');
-                    } else {
-                        doc.body.classList.remove('hide-my-id');
-                    }
-                } catch (e) {}
-            });
-            
-            showToast(state.hideId ? 'تم إخفاء معرف اللاعب' : 'تم إظهار معرف اللاعب');
+            document.getElementById('hideIdToggle').classList.toggle('active', state.hideId);
+            showToast(state.hideId ? 'تم تفعيل إخفاء الهوية' : 'تم إلغاء إخفاء الهوية');
         }
 
-        function openInstagram() {
-            window.open(CONFIG.instagramLink, '_blank');
-        }
+        function openInstagram() { window.open(CONFIG.instagramLink, '_blank'); }
 
-        function showToast(message) {
-            const existingToast = document.querySelector('.toast');
-            if (existingToast) existingToast.remove();
-            
+        function showToast(msg) {
+            const old = document.querySelector('.toast'); if (old) old.remove();
             const toast = document.createElement('div');
             toast.className = 'toast';
-            toast.textContent = message;
+            toast.textContent = msg;
             document.body.appendChild(toast);
-            
-            setTimeout(() => toast.remove(), 2000);
+            setTimeout(() => toast.remove(), 1800);
         }
 
-        // ============ تحسينات الألعاب ============
-        function setupGameOptimizations() {
-            // إخفاء الإعلانات في الصفحة الرئيسية
-            const adStyle = document.createElement('style');
-            adStyle.id = 'adRemoverStyles';
-            adStyle.textContent = `
-                #bottomAd, #senpa-io_300x250_3, #endGame, 
-                #room-stats-hud, #socialsidebar, #preroll,
-                #gameadsbanner-container, #right-panel, #left-panel,
-                .ads-block-1, .banner, .advertisement,
-                .team-players-list, .youtube-box {
-                    display: none !important;
-                    opacity: 0 !important;
-                    pointer-events: none !important;
-                    height: 0 !important;
-                    width: 0 !important;
-                    overflow: hidden !important;
-                }
-            `;
-            document.head.appendChild(adStyle);
-        }
-
-        // ============ التهيئة ============
+        // ============ تهيئة تشغيل النظام بالكامل ============
         function initialize() {
-            console.log('🚀 جاري تهيئة نظام ريماس التيم...');
-            
-            // تطبيق أنظمة منع التجميد
-            preventFrameFreeze();
-            
-            // تثبيت الشاشة
+            initAntiThrottlingEngine();
             lockScreen();
-            
-            // إعداد عداد FPS
             initFPSCounter();
+            loadGame(0); // تحميل التبويب الأول فوراً
+            loadGame(1); // تحميل التبويب الثاني مسبقاً بالخلفية ليكون جاهزاً فوراً عند التبديل
             
-            // تحميل التبويب الأول
-            loadGame(0);
-            
-            // إعداد مستمعي الأحداث
             document.addEventListener('keydown', handleKeyPress);
-            
-            // تحديث واجهة المستخدم
             updateKeyBindButton();
-            updateToggles();
             
-            // تحسينات الألعاب
-            setupGameOptimizations();
-            
-            // إعداد نظام المزامنة بين التبويبات
-            setupTabSync();
-            
-            console.log('✅ تم تهيئة النظام بنجاح');
-            console.log('📋 التبويبات:', CONFIG.maxTabs);
-            console.log('🔑 مفتاح التبديل:', state.switchKey);
-            console.log('🎮 جاهز للعب!');
+            // إخفاء الإعلانات من الجذر الخارجي والداخلي المتوقع
+            const style = document.createElement('style');
+            style.textContent = `#bottomAd,#senpa-io_300x250_3,#endGame,#room-stats-hud,#socialsidebar,#preroll,#gameadsbanner-container,#right-panel,#left-panel,.ads-block-1,.banner,.advertisement,.team-players-list,.youtube-box{display:none!important;opacity:0!important;pointer-events:none!important;height:0!important;width:0!important;}`;
+            document.head.appendChild(style);
         }
 
-        function updateToggles() {
-            const instagramToggle = document.getElementById('instagramToggle');
-            const hideIdToggle = document.getElementById('hideIdToggle');
-            const lockScreenToggle = document.getElementById('lockScreenToggle');
-            
-            if (instagramToggle) instagramToggle.classList.toggle('active', state.showInstagram);
-            if (hideIdToggle) hideIdToggle.classList.toggle('active', state.hideId);
-            if (lockScreenToggle) lockScreenToggle.classList.toggle('active', state.screenLocked);
-        }
-
-        function setupTabSync() {
-            // مزامنة حالة التبويبات
-            window.addEventListener('storage', (e) => {
-                if (e.key === 'remas_switch_key') {
-                    state.switchKey = e.newValue || CONFIG.defaultKey;
-                    updateKeyBindButton();
-                }
-            });
-            
-            // الحفاظ على نشاط الإطارات في الخلفية
-            setInterval(() => {
-                state.tabs.forEach((tab, index) => {
-                    if (tab.loaded && index !== state.activeTab) {
-                        const frame = document.getElementById(`gameFrame${index}`);
-                        if (frame && frame.contentWindow) {
-                            frame.contentWindow.postMessage({ type: 'keepAlive' }, '*');
-                        }
-                    }
-                });
-            }, 5000);
-        }
-
-        // بدء التطبيق عند تحميل الصفحة
         window.addEventListener('load', initialize);
-
-        // معالجة الأخطاء
-        window.addEventListener('error', (e) => {
-            console.error('❌ خطأ:', e.message);
-            // منع الأخطاء من إيقاف النظام
-            e.preventDefault();
-        });
-
-        // تأكيد الخروج
-        window.addEventListener('beforeunload', (e) => {
-            // حفظ الحالة
-            localStorage.setItem('remas_last_active_tab', state.activeTab);
-        });
-
-        console.log(`
-        ╔══════════════════════════════════╗
-        ║   🎮 Remas Ultimate v2.0.6    ║
-        ║   ⚡ Senpa.io Multi-Tab      ║
-        ║   🔒 Screen Lock Active      ║
-        ║   🚀 Anti-Freeze System     ║
-        ║   📱 By: 6i99n              ║
-        ╚══════════════════════════════════╝
-        `);
+        window.addEventListener('error', (e) => e.preventDefault());
     </script>
 </body>
 </html>
